@@ -1,27 +1,29 @@
-const KEY = 'birthday_wishes'
+import { pb } from '../lib/pb.js'
+import { REVEAL_TIME } from './birthdayImages.js'
 
-export function getWishes() {
-  try {
-    return JSON.parse(localStorage.getItem(KEY) || '[]')
-  } catch {
-    return []
+function mapWish(record) {
+  return {
+    id: record.id,
+    message: record.message,
+    name: record.name,
+    isPublic: record.is_public,
+    createdAt: record.created,
   }
 }
 
-export function addWish({ message, name, isPublic }) {
-  const wishes = getWishes()
-  const wish = {
-    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+export async function getWishes() {
+  const isRevealed = new Date() >= REVEAL_TIME
+  const options = { sort: 'created' }
+  if (!isRevealed) options.filter = 'is_public = true'
+  const records = await pb.collection('wishes').getFullList(options)
+  return records.map(mapWish)
+}
+
+export async function addWish({ message, name, isPublic }) {
+  const record = await pb.collection('wishes').create({
     message,
-    name: name.trim() || '匿名朋友',
-    isPublic,
-    createdAt: new Date().toISOString()
-  }
-  wishes.push(wish)
-  localStorage.setItem(KEY, JSON.stringify(wishes))
-  return wish
-}
-
-export function clearWishes() {
-  localStorage.removeItem(KEY)
+    name: name || '匿名朋友',
+    is_public: isPublic,
+  })
+  return mapWish(record)
 }
