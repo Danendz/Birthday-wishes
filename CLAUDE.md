@@ -24,7 +24,7 @@ When a feature requires a new collection or new fields on an existing collection
 
 ## Current Schema
 
-**Collection: `wishes`**
+**Collections: `wishes` (prod) and `wishes_dev` (dev) — identical schema, selected via `VITE_PB_COLLECTION` env var**
 
 | Field | Type | Required | Constraints |
 |---|---|---|---|
