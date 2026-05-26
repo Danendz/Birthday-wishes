@@ -48,8 +48,16 @@
         </div>
       </div>
 
-      <!-- Flowers + right-side nav in a row -->
+      <!-- Flowers with left/right arrows -->
       <div class="ground-body">
+        <!-- Left arrow -->
+        <button
+          v-if="totalPages > 1"
+          class="arrow-btn arrow-left"
+          :disabled="currentPage === 0"
+          @click="go(-1)"
+        >‹</button>
+
         <!-- Sliding pages -->
         <div class="slide-viewport">
           <div
@@ -75,20 +83,24 @@
           </div>
         </div>
 
-        <!-- Right-side vertical navigation -->
-        <div class="nav" v-if="totalPages > 1">
-          <button class="arrow-btn" :disabled="currentPage === 0" @click="go(-1)">‹</button>
-          <div class="page-dots">
-            <span
-              v-for="p in totalPages"
-              :key="p"
-              class="dot"
-              :class="{ active: p - 1 === currentPage }"
-              @click="goTo(p - 1)"
-            ></span>
-          </div>
-          <button class="arrow-btn" :disabled="currentPage >= totalPages - 1" @click="go(1)">›</button>
-        </div>
+        <!-- Right arrow -->
+        <button
+          v-if="totalPages > 1"
+          class="arrow-btn arrow-right"
+          :disabled="currentPage >= totalPages - 1"
+          @click="go(1)"
+        >›</button>
+      </div>
+
+      <!-- Page dots (horizontal, below flowers) -->
+      <div class="page-dots" v-if="totalPages > 1">
+        <span
+          v-for="p in totalPages"
+          :key="p"
+          class="dot"
+          :class="{ active: p - 1 === currentPage }"
+          @click="goTo(p - 1)"
+        ></span>
       </div>
     </div>
   </div>
@@ -312,42 +324,42 @@ function clickRabbit(id) {
 /* ═══════════════ RABBIT ═══════════════ */
 .rabbit {
   position: absolute;
-  bottom: 13px;
-  width: 36px;
-  height: 28px;
+  bottom: 10px;
+  width: 52px;
+  height: 42px;
   transform-origin: center bottom;
   cursor: pointer;
 }
 
 .r-body {
   position: absolute;
-  width: 27px; height: 19px;
+  width: 38px; height: 27px;
   background: currentColor;
   border-radius: 45% 50% 50% 45%;
-  bottom: 3px; left: 3px;
+  bottom: 3px; left: 4px;
 }
 .r-head {
   position: absolute;
-  width: 17px; height: 16px;
+  width: 24px; height: 22px;
   background: currentColor;
   border-radius: 50% 45% 45% 50%;
-  right: 0; bottom: 9px;
+  right: 0; bottom: 13px;
 }
 .r-ear-l, .r-ear-r {
   position: absolute;
-  width: 5px; height: 13px;
+  width: 7px; height: 18px;
   background: currentColor;
   border-radius: 50%;
-  top: -12px;
+  top: -17px;
 }
-.r-ear-l { left: 3px; }
-.r-ear-r { left: 9px; }
+.r-ear-l { left: 4px; }
+.r-ear-r { left: 13px; }
 .r-tail {
   position: absolute;
-  width: 10px; height: 10px;
+  width: 14px; height: 14px;
   background: rgba(255,255,255,0.85);
   border-radius: 50%;
-  bottom: 6px; left: 0;
+  bottom: 7px; left: 0;
 }
 
 .r-y  { color: #E8B820; }
@@ -364,17 +376,17 @@ function clickRabbit(id) {
 .r-ear-l::after, .r-ear-r::after {
   content: '';
   position: absolute;
-  width: 3px; height: 8px;
+  width: 4px; height: 12px;
   border-radius: 50%;
   top: 3px; left: 1px;
 }
 .r-head::after {
   content: '';
   position: absolute;
-  width: 4px; height: 4px;
+  width: 5px; height: 5px;
   background: #1a1a1a;
   border-radius: 50%;
-  top: 4px; right: 2px;
+  top: 5px; right: 3px;
 }
 
 .r-y  { animation: run-y  9s  ease-in-out infinite; }
@@ -449,11 +461,11 @@ function clickRabbit(id) {
   100% { left: 10%; transform: scaleX(1)  translateY(0); }
 }
 
-/* ── Ground body: flowers + right nav in a row ── */
+/* ── Ground body: left-arrow | viewport | right-arrow ── */
 .ground-body {
   display: flex;
   flex-direction: row;
-  align-items: stretch;
+  align-items: center;
 }
 
 /* Sliding viewport */
@@ -483,39 +495,31 @@ function clickRabbit(id) {
   gap: 2px 0;
 }
 
-/* ── Right-side vertical navigation ── */
-.nav {
-  flex-shrink: 0;
-  width: 38px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px 0;
-}
-
+/* ── Left / right arrow buttons ── */
 .arrow-btn {
-  background: rgba(255,255,255,0.15);
-  border: 2px solid rgba(255,255,255,0.4);
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.18);
+  border: 2px solid rgba(255,255,255,0.45);
   color: white;
-  width: 30px; height: 30px;
+  width: 36px; height: 36px;
   border-radius: 50%;
-  font-size: 16px;
+  font-size: 22px;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.2s;
-  flex-shrink: 0;
   line-height: 1;
+  margin: 0 4px;
 }
-.arrow-btn:hover:not(:disabled) { background: rgba(255,255,255,0.3); }
-.arrow-btn:disabled { opacity: 0.3; cursor: default; }
+.arrow-btn:hover:not(:disabled) { background: rgba(255,255,255,0.35); }
+.arrow-btn:disabled { opacity: 0.25; cursor: default; }
 
+/* ── Page dots (horizontal row below flowers) ── */
 .page-dots {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-  align-items: center;
+  flex-direction: row;
+  justify-content: center;
+  gap: 7px;
+  padding: 6px 0 4px;
 }
 
 .dot {
