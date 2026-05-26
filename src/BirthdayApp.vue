@@ -15,6 +15,9 @@
       @wish-click="openWish"
     />
 
+    <!-- Guide button (top-left) -->
+    <button class="guide-btn" @click="showGuide = true" title="使用指南">？</button>
+
     <!-- Wish count pill -->
     <transition name="fade">
       <div class="count-pill" v-if="wishes.length > 0">
@@ -39,6 +42,11 @@
     </div>
 
     <!-- Overlays -->
+    <GuideModal
+      v-if="showGuide"
+      @close="closeGuide"
+    />
+
     <WishPoster
       v-if="showPoster"
       :wishes="wishes"
@@ -80,12 +88,14 @@ import SeedAnimation from './components/SeedAnimation.vue'
 import ThankYouCard from './components/ThankYouCard.vue'
 import WishCard from './components/WishCard.vue'
 import WishPoster from './components/WishPoster.vue'
+import GuideModal from './components/GuideModal.vue'
 
 const wishes = ref([])
 const showForm = ref(false)
 const showSeed = ref(false)
 const showThankYou = ref(false)
 const showPoster = ref(false)
+const showGuide = ref(false)
 const activeWish = ref(null)
 const fieldRef = ref(null)
 
@@ -95,9 +105,19 @@ const visibleWishCount = computed(() =>
   wishes.value.filter(w => isRevealed.value || w.isPublic).length
 )
 
+const GUIDE_KEY = 'birthday_guide_seen'
+
 onMounted(async () => {
   wishes.value = await getWishes()
+  if (!localStorage.getItem(GUIDE_KEY)) {
+    showGuide.value = true
+  }
 })
+
+function closeGuide() {
+  showGuide.value = false
+  localStorage.setItem(GUIDE_KEY, '1')
+}
 
 async function onSubmit(data) {
   showForm.value = false
@@ -143,6 +163,34 @@ function openWish(wish) {
   font-weight: 700;
   flex-shrink: 0;
   z-index: 10;
+}
+
+/* Guide button (top-left) */
+.guide-btn {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  width: 34px;
+  height: 34px;
+  background: rgba(255, 253, 240, 0.88);
+  color: #5c3a00;
+  border: 2px solid #e8a800;
+  border-radius: 50%;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.guide-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 14px rgba(232, 168, 0, 0.4);
 }
 
 /* Bottom action bar — keeps both buttons side-by-side and centred */
