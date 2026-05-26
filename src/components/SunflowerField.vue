@@ -13,8 +13,14 @@
       <!-- Grass + rabbits -->
       <div class="grass-area">
         <div class="grass-bg"></div>
+
+        <!-- Speech bubble -->
+        <Transition name="bubble">
+          <div v-if="bubbleRabbit" class="speech-bubble">{{ bubbleText }}</div>
+        </Transition>
+
         <!-- Yellow rabbit -->
-        <div class="rabbit r-y">
+        <div class="rabbit r-y" @click="clickRabbit('y')">
           <div class="r-body"></div>
           <div class="r-head">
             <div class="r-ear-l"></div>
@@ -23,7 +29,7 @@
           <div class="r-tail"></div>
         </div>
         <!-- Gray rabbit 1 -->
-        <div class="rabbit r-g1">
+        <div class="rabbit r-g1" @click="clickRabbit('g1')">
           <div class="r-body"></div>
           <div class="r-head">
             <div class="r-ear-l"></div>
@@ -32,7 +38,7 @@
           <div class="r-tail"></div>
         </div>
         <!-- Gray rabbit 2 -->
-        <div class="rabbit r-g2">
+        <div class="rabbit r-g2" @click="clickRabbit('g2')">
           <div class="r-body"></div>
           <div class="r-head">
             <div class="r-ear-l"></div>
@@ -42,44 +48,47 @@
         </div>
       </div>
 
-      <!-- Sliding pages -->
-      <div class="slide-viewport">
-        <div
-          class="slides-track"
-          :style="{ transform: `translateX(${-currentPage * 100}%)`, transition: sliding ? 'transform 0.35s ease' : 'none' }"
-        >
+      <!-- Flowers + right-side nav in a row -->
+      <div class="ground-body">
+        <!-- Sliding pages -->
+        <div class="slide-viewport">
           <div
-            v-for="pageIdx in totalPages"
-            :key="pageIdx - 1"
-            class="slide-page"
+            class="slides-track"
+            :style="{ transform: `translateX(${-currentPage * 100}%)`, transition: sliding ? 'transform 0.35s ease' : 'none' }"
           >
-            <div class="flowers-grid">
-              <SunflowerPlant
-                v-for="(slot, i) in pageSlots(pageIdx - 1)"
-                :key="slot ? slot.id : `empty-${pageIdx}-${i}`"
-                :wish="slot"
-                :can-view="slot ? canView(slot) : false"
-                :seed="(pageIdx - 1) * PER_PAGE + i"
-                @click="$emit('wish-click', $event)"
-              />
+            <div
+              v-for="pageIdx in totalPages"
+              :key="pageIdx - 1"
+              class="slide-page"
+            >
+              <div class="flowers-grid">
+                <SunflowerPlant
+                  v-for="(slot, i) in pageSlots(pageIdx - 1)"
+                  :key="slot ? slot.id : `empty-${pageIdx}-${i}`"
+                  :wish="slot"
+                  :can-view="slot ? canView(slot) : false"
+                  :seed="(pageIdx - 1) * PER_PAGE + i"
+                  @click="$emit('wish-click', $event)"
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Navigation -->
-      <div class="nav" v-if="totalPages > 1">
-        <button class="arrow-btn" :disabled="currentPage === 0" @click="go(-1)">‹</button>
-        <div class="page-dots">
-          <span
-            v-for="p in totalPages"
-            :key="p"
-            class="dot"
-            :class="{ active: p - 1 === currentPage }"
-            @click="goTo(p - 1)"
-          ></span>
+        <!-- Right-side vertical navigation -->
+        <div class="nav" v-if="totalPages > 1">
+          <button class="arrow-btn" :disabled="currentPage === 0" @click="go(-1)">∧</button>
+          <div class="page-dots">
+            <span
+              v-for="p in totalPages"
+              :key="p"
+              class="dot"
+              :class="{ active: p - 1 === currentPage }"
+              @click="goTo(p - 1)"
+            ></span>
+          </div>
+          <button class="arrow-btn" :disabled="currentPage >= totalPages - 1" @click="go(1)">∨</button>
         </div>
-        <button class="arrow-btn" :disabled="currentPage >= totalPages - 1" @click="go(1)">›</button>
       </div>
     </div>
   </div>
@@ -128,6 +137,31 @@ defineExpose({
     goTo(totalPages.value - 1)
   }
 })
+
+// ── Rabbit quotes ──
+const quotes = [
+  '去生活，去犯错，去堕落，去征服，去从生命中创造生命！',
+  '是因为有爱，暗淡世界忽然变彩色。',
+  'You know I love you so.',
+  'Everything that drowns me makes me wanna fly.',
+  'You never shined so brightly.',
+  '所以你睡了没',
+  '不能做普通朋友',
+  'Someone in the crowd could be the one you need to know.',
+  '爱已无法回答所有的问题。'
+]
+
+const bubbleText = ref('')
+const bubbleRabbit = ref(null)
+let bubbleTimer = null
+
+function clickRabbit(id) {
+  if (bubbleTimer) clearTimeout(bubbleTimer)
+  const pool = quotes.filter(q => q !== bubbleText.value)
+  bubbleText.value = pool[Math.floor(Math.random() * pool.length)]
+  bubbleRabbit.value = id
+  bubbleTimer = setTimeout(() => { bubbleRabbit.value = null }, 4000)
+}
 </script>
 
 <style scoped>
@@ -194,7 +228,7 @@ defineExpose({
 /* Ground */
 .ground {
   background: linear-gradient(180deg, #8B6D2A 0%, #6b5020 100%);
-  padding: 0 0 8px;
+  padding-bottom: 80px; /* keeps bottom flowers above the action buttons */
   flex-shrink: 0;
 }
 
@@ -213,6 +247,53 @@ defineExpose({
   border-radius: 6px 6px 0 0;
 }
 
+/* ── Speech bubble ── */
+.speech-bubble {
+  position: absolute;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fffdf0;
+  border: 2px solid #e8c870;
+  border-radius: 14px;
+  padding: 8px 14px;
+  font-size: 12px;
+  color: #5c3a00;
+  line-height: 1.5;
+  max-width: 220px;
+  width: max-content;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  z-index: 20;
+  pointer-events: none;
+}
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: #e8c870;
+  border-bottom: none;
+}
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-top-color: #fffdf0;
+  border-bottom: none;
+  z-index: 1;
+}
+
+.bubble-enter-active { transition: opacity 0.25s ease, transform 0.25s ease; }
+.bubble-leave-active { transition: opacity 0.4s ease, transform 0.4s ease; }
+.bubble-enter-from   { opacity: 0; transform: translateX(-50%) translateY(8px); }
+.bubble-leave-to     { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+
 /* ═══════════════ RABBIT ═══════════════ */
 .rabbit {
   position: absolute;
@@ -220,9 +301,9 @@ defineExpose({
   width: 26px;
   height: 20px;
   transform-origin: center bottom;
+  cursor: pointer;
 }
 
-/* Body: horizontal oval */
 .r-body {
   position: absolute;
   width: 20px; height: 14px;
@@ -230,8 +311,6 @@ defineExpose({
   border-radius: 45% 50% 50% 45%;
   bottom: 2px; left: 2px;
 }
-
-/* Head: circle on right side */
 .r-head {
   position: absolute;
   width: 13px; height: 12px;
@@ -239,8 +318,6 @@ defineExpose({
   border-radius: 50% 45% 45% 50%;
   right: 0; bottom: 7px;
 }
-
-/* Ears: two thin tall ovals above head */
 .r-ear-l, .r-ear-r {
   position: absolute;
   width: 4px; height: 10px;
@@ -250,8 +327,6 @@ defineExpose({
 }
 .r-ear-l { left: 2px; }
 .r-ear-r { left: 7px; }
-
-/* Tail: small soft white blob on left */
 .r-tail {
   position: absolute;
   width: 7px; height: 7px;
@@ -260,12 +335,10 @@ defineExpose({
   bottom: 5px; left: 0;
 }
 
-/* Colors */
 .r-y  { color: #E8B820; }
 .r-g1 { color: #9E9E9E; }
 .r-g2 { color: #6E6E6E; }
 
-/* Inner ear highlight */
 .r-y  .r-ear-l::after,
 .r-y  .r-ear-r::after { background: #fff0a0; }
 .r-g1 .r-ear-l::after,
@@ -280,8 +353,6 @@ defineExpose({
   border-radius: 50%;
   top: 2px; left: 1px;
 }
-
-/* Eye on head */
 .r-head::after {
   content: '';
   position: absolute;
@@ -291,10 +362,9 @@ defineExpose({
   top: 3px; right: 2px;
 }
 
-/* ── Animations: position + direction + hop encoded together ── */
-
-/* Yellow: 5% → 48%, 9 s */
-.r-y { animation: run-y 9s ease-in-out infinite; }
+.r-y  { animation: run-y  9s  ease-in-out infinite; }
+.r-g1 { animation: run-g1 7s  ease-in-out infinite 1.8s; }
+.r-g2 { animation: run-g2 11s ease-in-out infinite 4.5s; }
 
 @keyframes run-y {
   0%   { left: 5%;  transform: scaleX(1)  translateY(0); }
@@ -319,10 +389,6 @@ defineExpose({
   96%  { left: 5%;  transform: scaleX(1)  translateY(0); }
   100% { left: 5%;  transform: scaleX(1)  translateY(0); }
 }
-
-/* Gray 1: 18% → 72%, 7 s, delay 1.8 s */
-.r-g1 { animation: run-g1 7s ease-in-out infinite 1.8s; }
-
 @keyframes run-g1 {
   0%   { left: 18%; transform: scaleX(1)  translateY(0); }
   7%   { left: 26%; transform: scaleX(1)  translateY(-5px); }
@@ -344,10 +410,6 @@ defineExpose({
   96%  { left: 18%; transform: scaleX(1)  translateY(0); }
   100% { left: 18%; transform: scaleX(1)  translateY(0); }
 }
-
-/* Gray 2: 10% → 55%, 11 s, delay 4.5 s */
-.r-g2 { animation: run-g2 11s ease-in-out infinite 4.5s; }
-
 @keyframes run-g2 {
   0%   { left: 10%; transform: scaleX(1)  translateY(0); }
   6%   { left: 17%; transform: scaleX(1)  translateY(-5px); }
@@ -372,10 +434,18 @@ defineExpose({
   100% { left: 10%; transform: scaleX(1)  translateY(0); }
 }
 
+/* ── Ground body: flowers + right nav in a row ── */
+.ground-body {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+
 /* Sliding viewport */
 .slide-viewport {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
-  width: 100%;
   padding-top: 50px;
   margin-top: -50px;
 }
@@ -388,7 +458,7 @@ defineExpose({
 .slide-page {
   flex: 0 0 100%;
   min-width: 0;
-  padding: 6px 12px 4px;
+  padding: 6px 8px 4px 12px;
 }
 
 /* Flower grid: 5 cols */
@@ -398,38 +468,43 @@ defineExpose({
   gap: 2px 0;
 }
 
-/* Navigation */
+/* ── Right-side vertical navigation ── */
 .nav {
+  flex-shrink: 0;
+  width: 38px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 6px 0 2px;
+  gap: 6px;
+  padding: 8px 0;
 }
 
 .arrow-btn {
   background: rgba(255,255,255,0.15);
   border: 2px solid rgba(255,255,255,0.4);
   color: white;
-  width: 34px; height: 34px;
+  width: 30px; height: 30px;
   border-radius: 50%;
-  font-size: 20px;
+  font-size: 16px;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.2s;
   flex-shrink: 0;
+  line-height: 1;
 }
 .arrow-btn:hover:not(:disabled) { background: rgba(255,255,255,0.3); }
 .arrow-btn:disabled { opacity: 0.3; cursor: default; }
 
 .page-dots {
   display: flex;
-  gap: 6px;
+  flex-direction: column;
+  gap: 5px;
   align-items: center;
 }
 
 .dot {
-  width: 8px; height: 8px;
+  width: 7px; height: 7px;
   background: rgba(255,255,255,0.4);
   border-radius: 50%;
   cursor: pointer;
@@ -437,6 +512,6 @@ defineExpose({
 }
 .dot.active {
   background: white;
-  transform: scale(1.25);
+  transform: scale(1.3);
 }
 </style>
