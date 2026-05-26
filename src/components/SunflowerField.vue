@@ -277,7 +277,7 @@ function clickRabbit(id) {
 /* ── Speech bubble ── */
 .speech-bubble {
   position: absolute;
-  bottom: 48px;
+  bottom: 72px;
   left: 50%;
   transform: translateX(-50%);
   background: #fffdf0;
