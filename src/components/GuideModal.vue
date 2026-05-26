@@ -57,7 +57,7 @@
 
         <section class="guide-section">
           <div class="sec-title">🎁 写完之后？</div>
-          <p>提交后会有一颗种子落地动画，稍等片刻，你将收到一张来自花海主人的<strong>随机回执图片</strong>作为纪念 ✨</p>
+          <p>提交后会有一颗种子落地动画，稍等片刻，你将收到一张来自花海主人的<strong>随机互动图片</strong>作为纪念 ✨</p>
         </section>
 
         <div class="divider"></div>

@@ -45,7 +45,7 @@
           class="poster-btn"
           @click="showMyCard = true"
         >
-          我的回执 🎁
+          我的互动 🎁
         </button>
       </transition>
     </div>
