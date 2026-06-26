@@ -20,7 +20,11 @@
 
     <!-- Wish count pill -->
     <transition name="fade">
-      <div class="count-pill" v-if="wishes.length > 0">
+      <div
+        class="count-pill"
+        :class="{ 'below-banner': isRevealed }"
+        v-if="wishes.length > 0"
+      >
         {{ wishes.length }} 朵向日葵
       </div>
     </transition>
@@ -39,15 +43,12 @@
           展开长卷 📜
         </button>
       </transition>
-      <transition name="fade">
-        <button
-          v-if="hasMyCard"
-          class="poster-btn"
-          @click="showMyCard = true"
-        >
-          我的互动 🎁
-        </button>
-      </transition>
+      <button
+        class="poster-btn"
+        @click="showGallery = true"
+      >
+        我的互动 📷
+      </button>
     </div>
 
     <!-- Overlays -->
@@ -79,10 +80,9 @@
       @close="showThankYou = false"
     />
 
-    <ThankYouCard
-      v-if="showMyCard"
-      :view-only="true"
-      @close="showMyCard = false"
+    <PhotoGallery
+      v-if="showGallery"
+      @close="showGallery = false"
     />
 
     <WishCard
@@ -104,19 +104,17 @@ import ThankYouCard from './components/ThankYouCard.vue'
 import WishCard from './components/WishCard.vue'
 import WishPoster from './components/WishPoster.vue'
 import GuideModal from './components/GuideModal.vue'
+import PhotoGallery from './components/PhotoGallery.vue'
 
 const wishes = ref([])
 const showForm = ref(false)
 const showSeed = ref(false)
 const showThankYou = ref(false)
-const showMyCard = ref(false)
+const showGallery = ref(false)
 const showPoster = ref(false)
 const showGuide = ref(false)
 const activeWish = ref(null)
 const fieldRef = ref(null)
-const hasMyCard = ref(false)
-
-const MY_CARD_KEY = 'birthday_my_card_idx'
 
 const isRevealed = computed(() => new Date() >= REVEAL_TIME)
 const canViewWish = (w) => isRevealed.value || w.isPublic
@@ -129,7 +127,6 @@ const GUIDE_KEY = 'birthday_guide_seen'
 onMounted(async () => {
   wishes.value = await getWishes()
   if (!localStorage.getItem(GUIDE_KEY)) showGuide.value = true
-  hasMyCard.value = !!localStorage.getItem(MY_CARD_KEY)
 })
 
 function closeGuide() {
@@ -154,7 +151,6 @@ async function onSubmit(data) {
 function onSeedDone() {
   showSeed.value = false
   showThankYou.value = true
-  hasMyCard.value = true
 }
 
 function openWish(wish) {
@@ -267,6 +263,11 @@ function openWish(wish) {
   z-index: 10;
   pointer-events: none;
   text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: top 0.3s ease;
+}
+/* When the reveal banner is showing, drop the pill below it so they don't overlap */
+.count-pill.below-banner {
+  top: 56px;
 }
 
 /* Poster button */
